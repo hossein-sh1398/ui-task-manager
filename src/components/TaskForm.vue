@@ -79,7 +79,7 @@
                     </div>
 
                     <button type="submit" :disabled="loading || v$.$invalid"
-                        class="btn btn-info w-100 py-2 fw-semibold text-white">
+                        class="btn btn-primary btn-sm mt-2 w-100 fw-semibold text-white">
                         <span v-if="loading" class="spinner-border spinner-border-sm me-2"></span>
                         <span>ثبت تسک</span>
                     </button>
@@ -137,10 +137,10 @@ const v$ = useVuelidate(rules, formData, { $lazy: true });
 
 async function handleSubmit() {
     v$.value.$touch();
-    
+
     if (!v$.value.$invalid) {
         errors.value = {};
-     
+
         loading.value = true;
 
         try {
@@ -160,7 +160,7 @@ async function handleSubmit() {
                     timer: 2000,
                     timerProgressBar: true
                 });
-                router.push({ name: 'tasks' });
+                router.push({ name: 'dashboard' });
             }
         } catch (e) {
             if (e.response) {

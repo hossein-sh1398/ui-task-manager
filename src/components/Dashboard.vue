@@ -3,7 +3,7 @@
         <!-- دکمه افزودن تسک جدید -->
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2 class="text-info fw-bold">لیست وظایف</h2>
-            <router-link to="/tasks/create" class="btn btn-success">
+            <router-link to="/tasks/create" class="btn btn-success btn-sm">
                 <i class="bi bi-plus-circle me-2"></i> افزودن تسک جدید
             </router-link>
         </div>
@@ -147,14 +147,16 @@
                                     title="حذف">
                                     <i class="bi bi-trash"></i>
                                 </button>
-                                <button class="btn btn-sm btn-warning me-1" @click="openEditModal(task.id)"
-                                    title="ویرایش">
-                                    <i class="bi bi-pencil-square"></i>
+                                <button class="btn btn-sm btn-warning me-1" :disabled="task.editLoading"
+                                    @click="openEditModal(task.id, index)" title="ویرایش">
+                                    <i class=" spinner-border spinner-border-sm me-1" v-if="task.editLoading"></i>
+                                    <i class="bi bi-pencil-square" v-else></i>
                                 </button>
-                                <button class="btn btn-sm"
+                                <button class="btn btn-sm" :disabled="task.toggleLoading"
                                     :class="task.completed ? 'btn-outline-success' : 'btn-outline-danger'"
                                     @click="toggleStatus(task.id, index)" title="تغییر وضعیت">
-                                    <i class="bi bi-arrow-repeat"></i>
+                                    <i class="spinner-border spinner-border-sm me-1" v-if="task.toggleLoading"></i>
+                                    <i class="bi bi-arrow-repeat" v-else></i>
                                 </button>
                             </td>
                         </tr>
@@ -175,7 +177,7 @@
                     <ul class="pagination justify-content-center">
                         <li v-for="link in meta?.links" :key="link.url" class="page-item"
                             :class="{ active: link.active }">
-                            <button class="page-link" @click="!link.active ? fetchTasks(link.label) : ''">
+                            <button class="page-link btn-sm" @click="!link.active ? fetchTasks(link.label) : ''">
                                 {{ link.label }}
                             </button>
                         </li>
@@ -266,13 +268,13 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
                             <i class="bi bi-x-circle me-1"></i> بستن
                         </button>
-                        <button type="button" class="btn btn-info text-white" :disabled="updateLoading || v$.$invalid"
+                        <button type="button" class="btn btn-primary btn-sm text-white" :disabled="updateLoading || v$.$invalid"
                             @click="saveEditedTask">
-                            <span v-if="updateLoading" class=" spinner-border spinner-border-sm"></span>
-                            <i class="bi bi-save-fill me-1" v-else></i> ذخیره تغییرات
+                            <span v-if="updateLoading" class="spinner-border spinner-border-sm"></span>
+                             ذخیره تغییرات
                         </button>
                     </div>
                 </div>
@@ -290,14 +292,6 @@ import { formatDate, showError } from '../helpers';
 import api from '../axios/api';
 import useVuelidate from '@vuelidate/core';
 import { required, minLength, maxLength, helpers } from '@vuelidate/validators';
-
-const editTask = reactive({
-    id: '',
-    title: '',
-    description: '',
-    start_date: '',
-    end_date: ''
-});
 
 // قانون سفارشی برای مقایسه تاریخ
 const endAfterStart = (value, siblings) =>
@@ -323,6 +317,13 @@ const rules = {
         endAfterStart: helpers.withMessage('تاریخ پایان باید بعد از تاریخ شروع باشد', endAfterStart),
     },
 };
+const editTask = reactive({
+    id: '',
+    title: '',
+    description: '',
+    start_date: '',
+    end_date: ''
+});
 const v$ = useVuelidate(rules, editTask, { $lazy: true });
 
 let params = ref({
@@ -338,15 +339,13 @@ let tasks = ref([]);
 let meta = ref([]);
 let modal = ref(null)
 const errors = ref({
-    title: [],
-    description: [],
-    start_date: [],
-    end_date: []
+    title: "",
+    description: "",
+    start_date: "",
+    end_date: ""
 })
 let loading = ref(false)
-let toggleLoading = ref(false)
 let deleteLoading = ref(false)
-let editLoading = ref(false)
 let updateLoading = ref(false)
 let isSearched = ref(false)
 
@@ -361,7 +360,6 @@ function doFilter() {
     params.value.page = 1;
     getTasks();
 }
-
 function sortList(column) {
     params.value.order = column;
     params.value.dir = params.value.dir === "desc" ? 'asc' : "desc";
@@ -379,7 +377,7 @@ async function getTasks() {
     try {
         const response = await api.get('tasks', { params: params.value });
         if (response.data.success) {
-            tasks.value = response.data.data.tasks;
+            tasks.value = response.data.data.tasks.map(task => ({ ...task, toggleLoading: false, editLoading: false }))
             meta.value = response.data.data.meta;
             meta.value.links = meta.value.links.slice(1, -1) // آیتم اول و آخر صفحه بندی حذف بشه
         }
@@ -405,7 +403,6 @@ async function getTasks() {
 onMounted(() => {
     getTasks()
 });
-
 
 async function deleteTask(id, index) {
     if (deleteLoading.value) return;
@@ -459,11 +456,11 @@ async function deleteTask(id, index) {
         }
     });
 }
-async function openEditModal(id) {
-    errors.value = {} // خطاهای اعتبارسنجی سمت سرور پاک بشن
-    if (editLoading.value) return;
+async function openEditModal(id, index) {
+    if (tasks.value[index].editLoading) return;
 
-    editLoading.value = false;
+    errors.value = {} // خطاهای اعتبارسنجی سمت سرور پاک بشن
+    tasks.value[index].editLoading = true;
 
     try {
         const response = await api.get(`tasks/${id}`);
@@ -494,7 +491,7 @@ async function openEditModal(id) {
             showError('اتصال به سرور برقرار نشد.')
         }
     } finally {
-        editLoading.value = false;
+        tasks.value[index].editLoading = false;
     }
 }
 async function saveEditedTask() {
@@ -549,17 +546,16 @@ async function saveEditedTask() {
         }
     }
 };
-
 async function toggleStatus(id, index) {
-    if (toggleLoading.value) return;
-
-    toggleLoading.value = true;
+    if (tasks.value[index].toggleLoading) return;
+    tasks.value[index].toggleLoading = true;
 
     try {
         const response = await api.patch(`tasks/${id}/toggle`);
 
         if (response.data.success) {
             tasks.value[index].completed = !tasks.value[index].completed;
+
             Swal.fire({
                 toast: true,
                 position: 'top-end',
@@ -586,10 +582,9 @@ async function toggleStatus(id, index) {
             showError('اتصال به سرور برقرار نشد.')
         }
     } finally {
-        toggleLoading.value = false;
+        tasks.value[index].toggleLoading = false;
     }
 }
-
 function clearSearchAndFilter() {
     params.value.search = "";
     params.value.status = "";
