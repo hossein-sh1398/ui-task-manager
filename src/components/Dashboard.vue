@@ -59,7 +59,7 @@
                     </div>
                 </div>
                 <div class="col-12 mt-2" v-if="isSearched">
-                    <button type="button" @click="clearSearchAndFilter()" class="btn btn-outline-danger w-100">
+                    <button type="button" @click="clearSearchAndFilters()" class="btn btn-outline-danger w-100">
                         <i class="bi bi-x-circle me-1"></i> حذف جستجو و فیلتر
                     </button>
                 </div>
@@ -70,7 +70,7 @@
                 <thead class="table-dark">
                     <tr>
                         <th>
-                            <a href="#" class="btn-sort" @click.prevent="sortList('id')">
+                            <a href="#" class="btn-sort" @click.prevent="columnSort('id')">
                                 <template v-if="params.order === 'id'">
                                     <i v-if="params.dir == 'desc'" class=" bi bi-sort-down me-2"></i>
                                     <i v-else="params.dir == 'asc'" class="bi bi-sort-up me-2"></i>
@@ -79,7 +79,7 @@
                             </a>
                         </th>
                         <th>
-                            <a href="#" class="btn-sort" @click.prevent="sortList('title')">
+                            <a href="#" class="btn-sort" @click.prevent="columnSort('title')">
                                 <template v-if="params.order === 'title'">
                                     <i v-if="params.dir == 'desc'" class="bi bi-sort-down me-2"></i>
                                     <i v-else="params.dir == 'asc'" class="bi bi-sort-up me-2"></i>
@@ -88,7 +88,7 @@
                             </a>
                         </th>
                         <th>
-                            <a href="#" class="btn-sort" @click.prevent="sortList('description')">
+                            <a href="#" class="btn-sort" @click.prevent="columnSort('description')">
                                 <template v-if="params.order === 'description'">
                                     <i v-if="params.dir == 'desc'" class="bi bi-sort-down me-2"></i>
                                     <i v-else="params.dir == 'asc'" class="bi bi-sort-up me-2"></i>
@@ -97,7 +97,7 @@
                             </a>
                         </th>
                         <th>
-                            <a href="#" class="btn-sort" @click.prevent="sortList('start_date')">
+                            <a href="#" class="btn-sort" @click.prevent="columnSort('start_date')">
                                 <template v-if="params.order === 'start_date'">
                                     <i v-if="params.dir == 'desc'" class="bi bi-sort-down me-2"></i>
                                     <i v-else="params.dir == 'asc'" class="bi bi-sort-up me-2"></i>
@@ -106,7 +106,7 @@
                             </a>
                         </th>
                         <th>
-                            <a href="#" class="btn-sort" @click.prevent="sortList('end_date')">
+                            <a href="#" class="btn-sort" @click.prevent="columnSort('end_date')">
                                 <template v-if="params.order === 'end_date'">
                                     <i v-if="params.dir == 'desc'" class="bi bi-sort-down me-2"></i>
                                     <i v-else="params.dir == 'asc'" class="bi bi-sort-up me-2"></i>
@@ -115,7 +115,7 @@
                             </a>
                         </th>
                         <th>
-                            <a href="#" class="btn-sort" @click.prevent="sortList('completed')">
+                            <a href="#" class="btn-sort" @click.prevent="columnSort('completed')">
                                 <template v-if="params.order === 'completed'">
                                     <i v-if="params.dir == 'desc'" class="bi bi-sort-down me-2"></i>
                                     <i v-else="params.dir == 'asc'" class="bi bi-sort-up me-2"></i>
@@ -360,7 +360,7 @@ function doFilter() {
     params.value.page = 1;
     getTasks();
 }
-function sortList(column) {
+function columnSort(column) {
     params.value.order = column;
     params.value.dir = params.value.dir === "desc" ? 'asc' : "desc";
 
@@ -585,7 +585,7 @@ async function toggleStatus(id, index) {
         tasks.value[index].toggleLoading = false;
     }
 }
-function clearSearchAndFilter() {
+function clearSearchAndFilters() {
     params.value.search = "";
     params.value.status = "";
     params.value.page = 1;
@@ -595,6 +595,7 @@ function clearSearchAndFilter() {
     isSearched.value = false;
     getTasks()
 }
+
 </script>
 
 <style scoped>
