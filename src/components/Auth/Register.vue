@@ -144,11 +144,13 @@ const rules = {
     },
     email: {
         required: helpers.withMessage('ایمیل الزامی است', required),
+        maxLength: helpers.withMessage('ایمیل باید حداکثر 255 کاراکتر باشد', maxLength(255)),
         email: helpers.withMessage('فرمت ایمیل نامعتبر است', email),
     },
     password: {
         required: helpers.withMessage('رمز عبور الزامی است', required),
         minLength: helpers.withMessage('رمز عبور باید حداقل 8 کاراکتر باشد', minLength(8)),
+        maxLength: helpers.withMessage('رمز عبور باید حداکثر 50 کاراکتر باشد', maxLength(50)),
         passwordRule: helpers.withMessage("رمز عبور باید شامل عدد، حروف کوچک و بزرگ و یک کاراکتر _)(*&^%$#@! باشد.", passwordRule),
     },
     password_confirmation: {

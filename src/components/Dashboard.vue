@@ -59,6 +59,7 @@
                     </div>
                 </div>
                 <div class="col-12 mt-2" v-if="isSearched">
+
                     <button type="button" @click="clearSearchAndFilters()" class="btn btn-outline-danger w-100">
                         <i class="bi bi-x-circle me-1"></i> حذف جستجو و فیلتر
                     </button>
@@ -176,19 +177,32 @@
                 </tfoot>
             </table>
             <!-- صفحه بندی تسکها -->
-            <div class="d-flex justify-content-center align-items-center"
-                v-if="tasks.length > 5 && meta?.links?.length > 1">
+            <div class="d-flex justify-content-center flex-column align-items-center" v-if="meta.has_pages">
                 <nav aria-label="Page navigation">
                     <ul class="pagination justify-content-center">
-                        <li v-for="link in meta?.links" :key="link.url" class="page-item"
-                            :class="{ active: link.active }">
+                        <li class="page-item" v-if="meta.next_page_url">
+                            <button @click="loadPaginatedTasks(meta.next_page_url.split('page=')[1])"
+                                class="page-link btn-sm">بعدی</button>
+                        </li>
+                        <li v-for="link in meta?.links?.sort((a, b) => b.label - a.label)" :key="link.url"
+                            class="page-item" :class="{ active: link.active }">
                             <button class="page-link btn-sm"
                                 @click="!link.active ? loadPaginatedTasks(link.label) : ''">
                                 {{ link.label }}
                             </button>
                         </li>
+                        <li class="page-item" v-if="meta.prev_page_url">
+                            <button @click="loadPaginatedTasks(meta.prev_page_url.split('page=')[1])"
+                                class="page-link btn-sm">قبلی</button>
+                        </li>
+
                     </ul>
                 </nav>
+                <div
+                    style="font-size: 16px; color: #333; margin-top: 10px; padding: 10px; background-color: #f9f9f9; border-radius: 5px; display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-weight: bold;">{{ meta.from }} تا {{ meta.to }} از مجموع {{ meta.total }}</span>
+                </div>
+
             </div>
         </div>
         <!-- پیغام برای نمایش زمانی که کاربر هیچ گونه تسکی ندارد -->
