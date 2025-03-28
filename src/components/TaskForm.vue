@@ -14,9 +14,11 @@
                                 placeholder="عنوان تسک را وارد کنید" @blur="v$.title.$touch"
                                 :class="{ 'is-invalid': v$.title.$error }" />
                         </div>
+                        <!-- نمایش پیامهای اعتبارسنجی سمت کاربری -->
                         <div v-if="v$.title.$error" class="text-danger">
                             {{ v$.title.$errors[0].$message }}
                         </div>
+                        <!-- نمایش پیامهای اعتبارسنجی سمت سرور -->
                         <div v-if="errors.title" class="text-danger">
                             {{ errors.title[0] }}
                         </div>
@@ -32,9 +34,11 @@
                                 placeholder="توضیحات تسک را وارد کنید" @blur="v$.description.$touch"
                                 :class="{ 'is-invalid': v$.description.$error }"></textarea>
                         </div>
+                        <!-- نمایش پیامهای اعتبارسنجی سمت کاربری -->
                         <div v-if="v$.description.$error" class="text-danger">
                             {{ v$.description.$errors[0].$message }}
                         </div>
+                        <!-- نمایش پیامهای اعتبارسنجی سمت سرور -->
                         <div v-if="errors.description" class=" text-danger">
                             {{ errors.description[0] }}
                         </div>
@@ -51,9 +55,11 @@
                                 class="form-control" @blur="v$.start_date.$touch"
                                 :class="{ 'is-invalid': v$.start_date.$error }" />
                         </div>
+                        <!-- نمایش پیامهای اعتبارسنجی سمت کاربری -->
                         <div v-if="v$.start_date.$error" class="text-danger">
                             {{ v$.start_date.$errors[0].$message }}
                         </div>
+                        <!-- نمایش پیامهای اعتبارسنجی سمت سرور -->
                         <div v-if="errors.start_date" class=" text-danger">
                             {{ errors.start_date[0] }}
                         </div>
@@ -70,9 +76,11 @@
                                 :class="{ 'is-invalid': v$.end_date.$error }" placeholder="تاریخ پایان را انتخاب کنید"
                                 class="form-control" />
                         </div>
+                        <!-- نمایش پیامهای اعتبارسنجی سمت کاربری -->
                         <div v-if="v$.end_date.$error" class="text-danger">
                             {{ v$.end_date.$errors[0].$message }}
                         </div>
+                        <!-- نمایش پیامهای اعتبارسنجی سمت سرور -->
                         <div v-if="errors.end_date" class=" text-danger">
                             {{ errors.end_date[0] }}
                         </div>
@@ -99,8 +107,8 @@ import { useRouter } from 'vue-router';
 import useVuelidate from '@vuelidate/core';
 
 const router = useRouter()
-const errors = ref({})
-const formData = reactive({
+const errors = ref({}) // برای نگهدای ارورهای اعتبارسنجی سمت سرور
+const formData = reactive({ //برای نگهدای اطلاعات ورودی فرم 
     title: '',
     description: '',
     start_date: '',
@@ -135,7 +143,7 @@ async function handleSubmit() {
                     timer: 2000,
                     timerProgressBar: true
                 });
-                router.push({ name: 'dashboard' });
+                router.push({ name: 'dashboard' }); // بعد از ایجاد وظیفه کاربر به صفحه دشبور خود منتقل میشود
             }
         } catch (e) {
             if (e.response) {

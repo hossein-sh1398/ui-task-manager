@@ -142,14 +142,17 @@
                             </span>
                         </td>
                         <td>
+                            <!-- دکمه حذف تسک -->
                             <button class="btn btn-sm btn-danger me-1" @click="deleteTask(task.id, index)" title="حذف">
                                 <i class="bi bi-trash"></i>
                             </button>
+                            <!-- دکمه ویرایش تسک -->
                             <button class="btn btn-sm btn-warning me-1" :disabled="task.editLoading"
                                 @click="openEditModal(task.id, index)" title="ویرایش">
                                 <i class=" spinner-border spinner-border-sm me-1" v-if="task.editLoading"></i>
                                 <i class="bi bi-pencil-square" v-else></i>
                             </button>
+                            <!-- دکمه تغییر وضعیت تسک -->
                             <button class="btn btn-sm" :disabled="task.toggleLoading"
                                 :class="task.completed ? 'btn-outline-success' : 'btn-outline-danger'"
                                 @click="toggleStatus(task.id, index)" title="تغییر وضعیت">
@@ -159,6 +162,7 @@
                         </td>
                     </tr>
                 </tbody>
+                <!-- نمایش لودینگ هنگام خواندن تسکها از سرور -->
                 <tfoot v-else>
                     <tr>
                         <td colspan="7">
@@ -171,13 +175,15 @@
                     </tr>
                 </tfoot>
             </table>
+            <!-- صفحه بندی تسکها -->
             <div class="d-flex justify-content-center align-items-center"
                 v-if="tasks.length > 5 && meta?.links?.length > 1">
                 <nav aria-label="Page navigation">
                     <ul class="pagination justify-content-center">
                         <li v-for="link in meta?.links" :key="link.url" class="page-item"
                             :class="{ active: link.active }">
-                            <button class="page-link btn-sm" @click="!link.active ? loadPaginatedTasks(link.label) : ''">
+                            <button class="page-link btn-sm"
+                                @click="!link.active ? loadPaginatedTasks(link.label) : ''">
                                 {{ link.label }}
                             </button>
                         </li>
@@ -185,6 +191,7 @@
                 </nav>
             </div>
         </div>
+        <!-- پیغام برای نمایش زمانی که کاربر هیچ گونه تسکی ندارد -->
         <div class="alert alert-info text-center" v-if="tasks.length == 0 && loading == false">
             وظیفه‌ای برای نمایش پیدا نشد
         </div>
@@ -208,9 +215,11 @@
                                     placeholder="عنوان تسک" @blur="v$.title.$touch"
                                     :class="{ 'is-invalid': v$.title.$error }" />
                             </div>
+                            <!-- نمایش پیامهای اعتبارسنجی سمت کاربری -->
                             <div v-if="v$.title.$error" class="text-danger">
                                 {{ v$.title.$errors[0].$message }}
                             </div>
+                            <!-- نمایش پیامهای اعتبارسنجی سمت سرور -->
                             <div v-if="errors.title" class="text-danger">
                                 {{ errors.title[0] }}
                             </div>
@@ -225,9 +234,11 @@
                                     rows="2" placeholder="توضیحات تسک" @blur="v$.description.$touch"
                                     :class="{ 'is-invalid': v$.description.$error }"></textarea>
                             </div>
+                            <!-- نمایش پیامهای اعتبارسنجی سمت کاربری -->
                             <div v-if="v$.description.$error" class="text-danger">
                                 {{ v$.description.$errors[0].$message }}
                             </div>
+                            <!-- نمایش پیامهای اعتبارسنجی سمت سرور -->
                             <div v-if="errors.description" class=" text-danger">
                                 {{ errors.description[0] }}
                             </div>
@@ -242,9 +253,11 @@
                                     display-format="jYYYY/jMM/jDD HH:mm" placeholder="تاریخ شروع" class="form-control"
                                     @blur="v$.start_date.$touch" :class="{ 'is-invalid': v$.start_date.$error }" />
                             </div>
+                            <!-- نمایش پیامهای اعتبارسنجی سمت کاربری -->
                             <div v-if="v$.start_date.$error" class="text-danger">
                                 {{ v$.start_date.$errors[0].$message }}
                             </div>
+                            <!-- نمایش پیامهای اعتبارسنجی سمت سرور -->
                             <div v-if="errors.start_date" class=" text-danger">
                                 {{ errors.start_date[0] }}
                             </div>
@@ -259,9 +272,11 @@
                                     display-format="jYYYY/jMM/jDD HH:mm" placeholder="تاریخ پایان" class="form-control"
                                     @blur="v$.end_date.$touch" :class="{ 'is-invalid': v$.end_date.$error }" />
                             </div>
+                            <!-- نمایش پیامهای اعتبارسنجی سمت کاربری -->
                             <div v-if="v$.end_date.$error" class="text-danger">
                                 {{ v$.end_date.$errors[0].$message }}
                             </div>
+                            <!-- نمایش پیامهای اعتبارسنجی سمت سرور -->
                             <div v-if="errors.end_date" class="text-danger">
                                 {{ errors.end_date[0] }}
                             </div>
@@ -293,15 +308,17 @@ import { formatDate, showError, tasksRules } from '../helpers';
 import api from '../axios/api';
 import useVuelidate from '@vuelidate/core';
 
-const editTask = reactive({
+const editTask = reactive({ // متغییر برای نگهدای تسک انتخاب شده برای یویرایش
     id: '',
     title: '',
     description: '',
     start_date: '',
     end_date: ''
 });
+
 const v$ = useVuelidate(tasksRules, editTask, { $lazy: true });
 
+// فیلدهای لازم جهت انجام جستجو فیلتر مرتب سازی و صفحه بندی
 const params = ref({
     order: 'id',
     dir: 'desc',
@@ -312,9 +329,9 @@ const params = ref({
 })
 
 let tasks = ref([]);
-let meta = ref([]);
-let modal = ref(null)
-const errors = ref({
+let meta = ref([]); // نگهداری اطلاعات صفحه بندی
+let modal = ref(null) // جهت نگهدای و نمایش مدال ویرایش تسک
+const errors = ref({ // متغییر برای نگهداری خطاهای سمت سرور
     title: "",
     description: "",
     start_date: "",
@@ -336,17 +353,19 @@ function doFilter() {
     params.value.page = 1;
     loadTasks();
 }
+// مرتب سازی تسکها
 function columnSort(column) {
     params.value.order = column;
     params.value.dir = params.value.dir === "desc" ? 'asc' : "desc";
 
     loadTasks()
 }
-
+// خواندن تسکها بر حسب صفحه انتخاب شده
 function loadPaginatedTasks(page) {
     params.value.page = page
     loadTasks()
 }
+// خواند تسکها از سرویس
 async function loadTasks() {
     loading.value = true;
 
@@ -379,7 +398,7 @@ async function loadTasks() {
 onMounted(() => {
     loadTasks()
 });
-
+// حذف تسک
 async function deleteTask(id, index) {
     if (deleteLoading.value) return;
 
@@ -497,7 +516,7 @@ async function saveEditedTask() {
                     timerProgressBar: true
                 });
 
-                loadTasks();
+                loadTasks(); // بعد از ویرایش موفق لیست تسکها مجدد خوانده میشن
             }
         } catch (e) {
             if (e.response) {

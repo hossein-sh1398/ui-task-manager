@@ -15,9 +15,11 @@
                                 placeholder="نام خود را وارد کنید" @blur="v$.name.$touch"
                                 :class="{ 'is-invalid': v$.name.$error }" />
                         </div>
+                        <!-- نمایش پیامهای اعتبارسنجی سمت کاربری -->
                         <div v-if="v$.name.$error" class="text-danger">
                             {{ v$.name.$errors[0].$message }}
                         </div>
+                        <!-- نمایش پیامهای اعتبارسنجی سمت سرور -->
                         <div v-if="errors.name" class=" text-danger">
                             {{ errors.name[0] }}
                         </div>
@@ -34,9 +36,11 @@
                                 placeholder="ایمیل خود را وارد کنید" @blur="v$.email.$touch"
                                 :class="{ 'is-invalid': v$.email.$error }" />
                         </div>
+                        <!-- نمایش پیامهای اعتبارسنجی سمت کاربری -->
                         <div v-if="v$.email.$error" class="text-danger">
                             {{ v$.email.$errors[0].$message }}
                         </div>
+                        <!-- نمایش پیامهای اعتبارسنجی سمت سرور -->
                         <div v-if="errors.email" class=" text-danger">
                             {{ errors.email[0] }}
                         </div>
@@ -57,9 +61,11 @@
                                 <i :class="showPassword ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
                             </button>
                         </div>
+                        <!-- نمایش پیامهای اعتبارسنجی سمت کاربری -->
                         <div v-if="v$.password.$error" class="text-danger">
                             {{ v$.password.$errors[0].$message }}
                         </div>
+                        <!-- نمایش پیامهای اعتبارسنجی سمت سرور -->
                         <div v-if="errors.password" class=" text-danger">
                             {{ errors.password[0] }}
                         </div>
@@ -81,6 +87,7 @@
                                 <i :class="showConfirmPassword ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
                             </button>
                         </div>
+                        <!-- نمایش پیامهای اعتبارسنجی سمت کاربری -->
                         <div v-if="v$.password_confirmation.$error" class="text-danger">
                             {{ v$.password_confirmation.$errors[0].$message }}
                         </div>
@@ -115,7 +122,7 @@ import { required, minLength, helpers, email, maxLength } from '@vuelidate/valid
 import { passwordRule, sameAsPassword } from '../../helpers.js';
 
 const router = useRouter()
-const authStore = useAuthUserStore()
+const authStore = useAuthUserStore() // استور کاربر احراز هویت شده
 const formData = reactive({
     name: '',
     email: "",
@@ -123,7 +130,7 @@ const formData = reactive({
     password_confirmation: "",
 
 });
-const errors = ref({})
+const errors = ref({}) // برای نگهداری پیامهای اعتبارسنجی سمت سرور
 let loading = ref(false)
 let showPassword = ref(false);
 let showConfirmPassword = ref(false);
@@ -152,8 +159,8 @@ const rules = {
 const v$ = useVuelidate(rules, formData, { $lazy: true });
 
 async function handleSubmit() {
-    v$.value.$touch();
-    if (!v$.value.$invalid) {
+    v$.value.$touch(); // اعتبار سنجی سمت کاربری
+    if (!v$.value.$invalid) { // داده‌های فرم معتبر است
 
         errors.value = {};
         loading.value = true;
@@ -167,8 +174,8 @@ async function handleSubmit() {
             })
 
             if (response.data.success) {
-                authStore.setAuthUser(response.data.data.user)
-                authStore.setApiToken(response.data.data.api_token)
+                authStore.setAuthUser(response.data.data.user)// ذخیره کاربر در استور
+                authStore.setApiToken(response.data.data.api_token) // ذخیره توکن کاربر در استور
 
                 Swal.fire({
                     toast: true,
@@ -179,13 +186,13 @@ async function handleSubmit() {
                     timer: 2000,
                     timerProgressBar: true
                 });
-                router.push({ name: 'dashboard' });
+                router.push({ name: 'dashboard' }); // بعد از ثبت نام موفق کاربر به داشبور هدایت می‌شود
             }
         } catch (e) {
             if (e.response) {
                 const { status, data } = e.response
                 switch (status) {
-                    case 422: // خطاهای اعتبارسنجی
+                    case 422: // خطاهای اعتبارسنجی سمت سرور
                         errors.value = data.errors;
                         break;
                     case 401:// خطای احراز هویت

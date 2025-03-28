@@ -14,9 +14,11 @@
                                 placeholder="ایمیل خود را وارد کنید" @blur="v$.email.$touch"
                                 :class="{ 'is-invalid': v$.email.$error }" />
                         </div>
+                        <!-- نمایش پیامهای اعتبارسنجی سمت کاربری -->
                         <div v-if="v$.email.$error" class="text-danger">
                             {{ v$.email.$errors[0].$message }}
                         </div>
+                        <!-- نمایش پیامهای اعتبارسنجی سمت سرور -->
                         <div v-if="errors.email" class=" text-danger">
                             {{ errors.email[0] }}
                         </div>
@@ -28,17 +30,19 @@
                             <span class="input-group-text bg-light">
                                 <i class="bi bi-lock-fill text-primary"></i>
                             </span>
-                            <input :type="showPassword ? 'text' : 'password'" class="form-control text-center" id="password"
-                                v-model="formData.password" placeholder="رمز عبور خود را وارد کنید"
+                            <input :type="showPassword ? 'text' : 'password'" class="form-control text-center"
+                                id="password" v-model="formData.password" placeholder="رمز عبور خود را وارد کنید"
                                 @blur="v$.password.$touch" :class="{ 'is-invalid': v$.password.$error }" />
                             <button type="button" class="btn btn-outline-secondary"
                                 @click="showPassword = !showPassword">
                                 <i :class="showPassword ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
                             </button>
                         </div>
+                        <!-- نمایش پیامهای اعتبارسنجی سمت کاربری -->
                         <div v-if="v$.password.$error" class="text-danger">
                             {{ v$.password.$errors[0].$message }}
                         </div>
+                        <!-- نمایش پیامهای اعتبارسنجی سمت سرور -->
                         <div v-if="errors.password" class=" text-danger">
                             {{ errors.password[0] }}
                         </div>
@@ -65,7 +69,7 @@ import { passwordRule, showError } from '../../helpers';
 import useVuelidate from '@vuelidate/core';
 import { required, minLength, helpers, email } from '@vuelidate/validators';
 
-const authUser = useAuthUserStore()
+const authUser = useAuthUserStore() // استور کاربر احراز هویت شده
 const router = useRouter()
 const formData = reactive({
     email: "",
@@ -100,7 +104,7 @@ async function handleSubmit() {
                 email: formData.email,
                 password: formData.password,
             })
-    
+            // ذخیره کاربر و توکن کاربر در استور
             authUser.setAuthUser(response.data.data.user)
             authUser.setApiToken(response.data.data.api_token)
     
@@ -113,7 +117,7 @@ async function handleSubmit() {
                 timer: 2000,
                 timerProgressBar: true
             });
-            router.push({ name: 'dashboard' });
+            router.push({ name: 'dashboard' }); // بعد از ورود کاربر به داشبور خود منتقل میشود
         } catch (e) {
             if (e.response) {
                 const { status, data } = e.response
