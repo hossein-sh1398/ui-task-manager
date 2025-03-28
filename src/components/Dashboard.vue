@@ -47,7 +47,7 @@
                         <span class="input-group-text bg-light">
                             <i class="bi bi-filter text-info"></i>
                         </span>
-                        <select class="form-select" v-model="params.per_page" @change="getTasks()" id="statusFilter">
+                        <select class="form-select" v-model="params.per_page" @change="loadTasks()" id="statusFilter">
                             <option value="5">5</option>
                             <option value="10" selected>10</option>
                             <option value="20">20</option>
@@ -69,7 +69,7 @@
             <table class="table table-hover table-bordered align-middle">
                 <thead class="table-dark">
                     <tr>
-                        <th>
+                        <th style="width: 80px;">
                             <a href="#" class="btn-sort" @click.prevent="columnSort('id')">
                                 <template v-if="params.order === 'id'">
                                     <i v-if="params.dir == 'desc'" class=" bi bi-sort-down me-2"></i>
@@ -78,7 +78,7 @@
                                 <span>آدی</span>
                             </a>
                         </th>
-                        <th>
+                        <th style="width: 200px;">
                             <a href="#" class="btn-sort" @click.prevent="columnSort('title')">
                                 <template v-if="params.order === 'title'">
                                     <i v-if="params.dir == 'desc'" class="bi bi-sort-down me-2"></i>
@@ -96,7 +96,7 @@
                                 <span>توضیحات</span>
                             </a>
                         </th>
-                        <th>
+                        <th style="width: 120px;">
                             <a href="#" class="btn-sort" @click.prevent="columnSort('start_date')">
                                 <template v-if="params.order === 'start_date'">
                                     <i v-if="params.dir == 'desc'" class="bi bi-sort-down me-2"></i>
@@ -105,7 +105,7 @@
                                 <span>تاریخ شروع</span>
                             </a>
                         </th>
-                        <th>
+                        <th style="width: 120px;">
                             <a href="#" class="btn-sort" @click.prevent="columnSort('end_date')">
                                 <template v-if="params.order === 'end_date'">
                                     <i v-if="params.dir == 'desc'" class="bi bi-sort-down me-2"></i>
@@ -114,7 +114,7 @@
                                 <span>تاریخ پایان</span>
                             </a>
                         </th>
-                        <th>
+                        <th style="width: 120px;">
                             <a href="#" class="btn-sort" @click.prevent="columnSort('completed')">
                                 <template v-if="params.order === 'completed'">
                                     <i v-if="params.dir == 'desc'" class="bi bi-sort-down me-2"></i>
@@ -123,45 +123,44 @@
                                 <span>وضعیت</span>
                             </a>
                         </th>
-                        <th>عملیات</th>
+                        <th style="width: 150px;">عملیات</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <template v-if="loading == false">
-                        <tr v-for="(task, index) in tasks" :key="index">
-                            <td>{{ task.id }}</td>
-                            <td>{{ task.title }}</td>
-                            <td>{{ task.description }}</td>
-                            <td dir="ltr">{{ formatDate(task.start_date) }}</td>
-                            <td dir="ltr">{{ formatDate(task.end_date) }}</td>
-                            <td>
-                                <span v-if="task.completed" class="text-success">
-                                    <i class="bi bi-check-circle-fill"></i> انجام‌شده
-                                </span>
-                                <span v-else class="text-danger">
-                                    <i class="bi bi-x-circle-fill"></i> در حال انجام
-                                </span>
-                            </td>
-                            <td>
-                                <button class="btn btn-sm btn-danger me-1" @click="deleteTask(task.id, index)"
-                                    title="حذف">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                                <button class="btn btn-sm btn-warning me-1" :disabled="task.editLoading"
-                                    @click="openEditModal(task.id, index)" title="ویرایش">
-                                    <i class=" spinner-border spinner-border-sm me-1" v-if="task.editLoading"></i>
-                                    <i class="bi bi-pencil-square" v-else></i>
-                                </button>
-                                <button class="btn btn-sm" :disabled="task.toggleLoading"
-                                    :class="task.completed ? 'btn-outline-success' : 'btn-outline-danger'"
-                                    @click="toggleStatus(task.id, index)" title="تغییر وضعیت">
-                                    <i class="spinner-border spinner-border-sm me-1" v-if="task.toggleLoading"></i>
-                                    <i class="bi bi-arrow-repeat" v-else></i>
-                                </button>
-                            </td>
-                        </tr>
-                    </template>
-                    <tr v-else>
+                <tbody v-if="!loading">
+                    <tr v-for="(task, index) in tasks" :key="index">
+                        <td>{{ task.id }}</td>
+                        <td>{{ task.title }}</td>
+                        <td>{{ task.description }}</td>
+                        <td dir="ltr">{{ formatDate(task.start_date) }}</td>
+                        <td dir="ltr">{{ formatDate(task.end_date) }}</td>
+                        <td>
+                            <span v-if="task.completed" class="text-success">
+                                <i class="bi bi-check-circle-fill"></i> انجام‌شده
+                            </span>
+                            <span v-else class="text-danger">
+                                <i class="bi bi-x-circle-fill"></i> در حال انجام
+                            </span>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-danger me-1" @click="deleteTask(task.id, index)" title="حذف">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                            <button class="btn btn-sm btn-warning me-1" :disabled="task.editLoading"
+                                @click="openEditModal(task.id, index)" title="ویرایش">
+                                <i class=" spinner-border spinner-border-sm me-1" v-if="task.editLoading"></i>
+                                <i class="bi bi-pencil-square" v-else></i>
+                            </button>
+                            <button class="btn btn-sm" :disabled="task.toggleLoading"
+                                :class="task.completed ? 'btn-outline-success' : 'btn-outline-danger'"
+                                @click="toggleStatus(task.id, index)" title="تغییر وضعیت">
+                                <i class="spinner-border spinner-border-sm me-1" v-if="task.toggleLoading"></i>
+                                <i class="bi bi-arrow-repeat" v-else></i>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+                <tfoot v-else>
+                    <tr>
                         <td colspan="7">
                             <div class="text-center">
                                 <div class="spinner-border text-info" role="status">
@@ -170,14 +169,15 @@
                             </div>
                         </td>
                     </tr>
-                </tbody>
+                </tfoot>
             </table>
-            <div class="d-flex justify-content-center align-items-center" v-if="meta?.links?.length > 1">
+            <div class="d-flex justify-content-center align-items-center"
+                v-if="tasks.length > 5 && meta?.links?.length > 1">
                 <nav aria-label="Page navigation">
                     <ul class="pagination justify-content-center">
                         <li v-for="link in meta?.links" :key="link.url" class="page-item"
                             :class="{ active: link.active }">
-                            <button class="page-link btn-sm" @click="!link.active ? fetchTasks(link.label) : ''">
+                            <button class="page-link btn-sm" @click="!link.active ? loadPaginatedTasks(link.label) : ''">
                                 {{ link.label }}
                             </button>
                         </li>
@@ -262,7 +262,7 @@
                             <div v-if="v$.end_date.$error" class="text-danger">
                                 {{ v$.end_date.$errors[0].$message }}
                             </div>
-                            <div v-if="errors.end_date" class=" text-danger">
+                            <div v-if="errors.end_date" class="text-danger">
                                 {{ errors.end_date[0] }}
                             </div>
                         </div>
@@ -271,10 +271,11 @@
                         <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
                             <i class="bi bi-x-circle me-1"></i> بستن
                         </button>
-                        <button type="button" class="btn btn-primary btn-sm text-white" :disabled="updateLoading || v$.$invalid"
-                            @click="saveEditedTask">
-                            <span v-if="updateLoading" class="spinner-border spinner-border-sm"></span>
-                             ذخیره تغییرات
+
+                        <button type="button" class="btn btn-primary btn-sm text-white"
+                            :disabled="updateLoading || v$.$invalid" @click="saveEditedTask">
+                            <span v-if="updateLoading" class="spinner-border spinner-border-sm me-2"></span>
+                            ذخیره تغییرات
                         </button>
                     </div>
                 </div>
@@ -288,35 +289,10 @@ import DatePicker from 'vue3-persian-datetime-picker';
 import * as bootstrap from 'bootstrap';
 import Swal from 'sweetalert2';
 import { onMounted, reactive, ref } from 'vue';
-import { formatDate, showError } from '../helpers';
+import { formatDate, showError, tasksRules } from '../helpers';
 import api from '../axios/api';
 import useVuelidate from '@vuelidate/core';
-import { required, minLength, maxLength, helpers } from '@vuelidate/validators';
 
-// قانون سفارشی برای مقایسه تاریخ
-const endAfterStart = (value, siblings) =>
-    !value || !siblings.start_date || new Date(value) > new Date(siblings.start_date);
-
-// قوانین اعتبارسنجی با پیام‌های فارسی
-const rules = {
-    title: {
-        required: helpers.withMessage('عنوان الزامی است', required),
-        minLength: helpers.withMessage('عنوان باید حداقل 3 کاراکتر باشد', minLength(3)),
-        maxLength: helpers.withMessage('عنوان نمی‌تواند بیشتر از 255 کاراکتر باشد', maxLength(255)),
-    },
-    description: {
-        required: helpers.withMessage('توضیحات الزامی است', required),
-        minLength: helpers.withMessage('توضیحات باید حداقل 5 کاراکتر باشد', minLength(5)),
-        maxLength: helpers.withMessage('توضیحات نمی‌تواند بیشتر از 500 کاراکتر باشد', maxLength(500)),
-    },
-    start_date: {
-        required: helpers.withMessage('تاریخ شروع الزامی است', required),
-    },
-    end_date: {
-        required: helpers.withMessage('تاریخ پایان الزامی است', required),
-        endAfterStart: helpers.withMessage('تاریخ پایان باید بعد از تاریخ شروع باشد', endAfterStart),
-    },
-};
 const editTask = reactive({
     id: '',
     title: '',
@@ -324,9 +300,9 @@ const editTask = reactive({
     start_date: '',
     end_date: ''
 });
-const v$ = useVuelidate(rules, editTask, { $lazy: true });
+const v$ = useVuelidate(tasksRules, editTask, { $lazy: true });
 
-let params = ref({
+const params = ref({
     order: 'id',
     dir: 'desc',
     search: "",
@@ -352,26 +328,26 @@ let isSearched = ref(false)
 function doSearch() {
     if (params.value.search.length > 0) {
         params.value.page = 1;
-        getTasks()
+        loadTasks()
         isSearched.value = true;
     }
 }
 function doFilter() {
     params.value.page = 1;
-    getTasks();
+    loadTasks();
 }
 function columnSort(column) {
     params.value.order = column;
     params.value.dir = params.value.dir === "desc" ? 'asc' : "desc";
 
-    getTasks()
+    loadTasks()
 }
 
-function fetchTasks(page) {
+function loadPaginatedTasks(page) {
     params.value.page = page
-    getTasks()
+    loadTasks()
 }
-async function getTasks() {
+async function loadTasks() {
     loading.value = true;
 
     try {
@@ -401,7 +377,7 @@ async function getTasks() {
     }
 }
 onMounted(() => {
-    getTasks()
+    loadTasks()
 });
 
 async function deleteTask(id, index) {
@@ -521,7 +497,7 @@ async function saveEditedTask() {
                     timerProgressBar: true
                 });
 
-                getTasks();
+                loadTasks();
             }
         } catch (e) {
             if (e.response) {
@@ -593,7 +569,7 @@ function clearSearchAndFilters() {
     params.value.dir = "desc"
     params.value.order = "id"
     isSearched.value = false;
-    getTasks()
+    loadTasks()
 }
 
 </script>

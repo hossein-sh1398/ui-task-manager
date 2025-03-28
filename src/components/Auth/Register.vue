@@ -112,6 +112,7 @@ import { useRouter } from 'vue-router';
 import Swal from 'sweetalert2';
 import useVuelidate from '@vuelidate/core';
 import { required, minLength, helpers, email, maxLength } from '@vuelidate/validators';
+import { passwordRule, sameAsPassword } from '../../helpers.js';
 
 const router = useRouter()
 const authStore = useAuthUserStore()
@@ -122,15 +123,16 @@ const formData = reactive({
     password_confirmation: "",
 
 });
-// قانون سفارشی برای مقایسه رمز عبور
-const sameAsPassword = (value, { password }) => {
-    return value === password;
-};
+const errors = ref({})
+let loading = ref(false)
+let showPassword = ref(false);
+let showConfirmPassword = ref(false);
+
 // قوانین اعتبارسنجی با پیام‌های فارسی
 const rules = {
     name: {
         required: helpers.withMessage('فیلد نام الزامی است', required),
-        minLength: helpers.withMessage('نام باید حداقل ۳ کاراکتر باشد', minLength(3)),
+        minLength: helpers.withMessage('نام باید حداقل 3 کاراکتر باشد', minLength(3)),
         maxLength: helpers.withMessage('نام باید حداکثر 255 کاراکتر باشد', maxLength(255)),
     },
     email: {
@@ -140,6 +142,7 @@ const rules = {
     password: {
         required: helpers.withMessage('رمز عبور الزامی است', required),
         minLength: helpers.withMessage('رمز عبور باید حداقل 8 کاراکتر باشد', minLength(8)),
+        passwordRule: helpers.withMessage("رمز عبور باید شامل عدد، حروف کوچک و بزرگ و یک کاراکتر _)(*&^%$#@! باشد.", passwordRule),
     },
     password_confirmation: {
         required: helpers.withMessage('تکرار عبور الزامی است', required),
@@ -147,10 +150,6 @@ const rules = {
     }
 };
 const v$ = useVuelidate(rules, formData, { $lazy: true });
-const errors = ref({})
-let loading = ref(false)
-let showPassword = ref(false);
-let showConfirmPassword = ref(false);
 
 async function handleSubmit() {
     v$.value.$touch();

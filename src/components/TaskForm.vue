@@ -94,10 +94,9 @@ import DatePicker from 'vue3-persian-datetime-picker';
 import Swal from 'sweetalert2';
 import { reactive, ref } from 'vue';
 import api from '../axios/api'
-import { showError } from '../helpers';
+import { showError, tasksRules } from '../helpers';
 import { useRouter } from 'vue-router';
 import useVuelidate from '@vuelidate/core';
-import { required, minLength, maxLength, helpers } from '@vuelidate/validators';
 
 const router = useRouter()
 const errors = ref({})
@@ -109,31 +108,7 @@ const formData = reactive({
 });
 let loading = ref(false)
 
-// قانون سفارشی برای مقایسه تاریخ
-const endAfterStart = (value, siblings) =>
-    !value || !siblings.start_date || new Date(value) > new Date(siblings.start_date);
-
-// قوانین اعتبارسنجی با پیام‌های فارسی
-const rules = {
-    title: {
-        required: helpers.withMessage('عنوان الزامی است', required),
-        minLength: helpers.withMessage('عنوان باید حداقل 3 کاراکتر باشد', minLength(3)),
-        maxLength: helpers.withMessage('عنوان نمی‌تواند بیشتر از 255 کاراکتر باشد', maxLength(255)),
-    },
-    description: {
-        required: helpers.withMessage('توضیحات الزامی است', required),
-        minLength: helpers.withMessage('توضیحات باید حداقل 5 کاراکتر باشد', minLength(5)),
-        maxLength: helpers.withMessage('توضیحات نمی‌تواند بیشتر از 500 کاراکتر باشد', maxLength(500)),
-    },
-    start_date: {
-        required: helpers.withMessage('تاریخ شروع الزامی است', required),
-    },
-    end_date: {
-        required: helpers.withMessage('تاریخ پایان الزامی است', required),
-        endAfterStart: helpers.withMessage('تاریخ پایان باید بعد از تاریخ شروع باشد', endAfterStart),
-    },
-};
-const v$ = useVuelidate(rules, formData, { $lazy: true });
+const v$ = useVuelidate(tasksRules, formData, { $lazy: true });
 
 async function handleSubmit() {
     v$.value.$touch();

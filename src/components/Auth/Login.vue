@@ -61,7 +61,7 @@ import { useAuthUserStore } from '../../stores/auth_user';
 import api from '../../axios/api';
 import Swal from 'sweetalert2';
 import { useRouter } from 'vue-router';
-import { showError } from '../../helpers';
+import { passwordRule, showError } from '../../helpers';
 import useVuelidate from '@vuelidate/core';
 import { required, minLength, helpers, email } from '@vuelidate/validators';
 
@@ -83,6 +83,7 @@ const rules = {
     password: {
         required: helpers.withMessage('رمز عبور الزامی است', required),
         minLength: helpers.withMessage('رمز عبور باید حداقل 8 کاراکتر باشد', minLength(8)),
+        passwordRule: helpers.withMessage("رمز عبور باید شامل عدد، حروف کوچک و بزرگ و یک کاراکتر _)(*&^%$#@! باشد.", passwordRule),
     }
 };
 const v$ = useVuelidate(rules, formData, { $lazy: true });
